@@ -1,5 +1,6 @@
 'use strict';
-
+const chalk = require('chalk');
+const ora = require('ora');
 
 async function detectLanguage(text) {
   console.time('detectLanguage');
@@ -76,7 +77,11 @@ async function listLanguagesWithTarget(target) {
 }
 
 async function translateText(text, target) {
-  console.time('translateText');
+  const timeStart = new Date();
+  const spinner = ora({
+    text: chalk.grey('Loading...'),
+    spinner: 'hearts',
+  }).start();
 
   // [START translate_translate_text]
   // Imports the Google Cloud client library
@@ -97,13 +102,15 @@ async function translateText(text, target) {
   let [translations] = await translate.translate(text, target);
   translations = Array.isArray(translations) ? translations : [translations];
 
-  console.log('Translations:');
+  console.log('\n');
+  // console.log(chalk.grey('Translations:'));
   translations.forEach((translation, i) => {
-    console.log(`${text[i]} => (${target}) ${translation}`);
+    console.log(chalk.green(`${text[i]} => (${target}) ${translation}`));
   });
 
+  console.log('\n');
+  spinner.succeed(chalk.grey(`${new Date() - timeStart}ms`));
   // [END translate_translate_text]
-  console.timeEnd('translateText');
 }
 
 async function translateTextWithModel(text, target, model) {
